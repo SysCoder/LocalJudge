@@ -6,6 +6,7 @@ You can download Local Judge to your computer and run the page locally without a
 
 You can find a demo [here](https://syscoder.github.io/LocalJudge/pages/index.html).
 
+It is currently super slow. I believe there are ways this can be improved.
 
 
 ## Copyright and License
