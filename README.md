@@ -10,4 +10,4 @@ You can find a demo [here](https://syscoder.github.io/LocalJudge/pages/index.htm
 
 ## Copyright and License
 
-Code released under the [MIT] license.
+Code released under the MIT license.
