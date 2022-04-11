@@ -1,0 +1,176 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Simple DoppioJVM Example</title>
+    <script type="text/javascript" src="doppio/browserfs.min.js"></script>
+    <script type="text/javascript" src="doppio/doppio.js"></script>
+    <script type="text/javascript" src="base64Output.js"></script>
+    <script type="text/javascript">
+      // Wrap in a closure; don't pollute the global namespace.
+
+        var mfs = new BrowserFS.FileSystem.MountableFileSystem(),
+            fs = BrowserFS.BFSRequire('fs');
+            buffer = BrowserFS.BFSRequire('buffer');
+            path = BrowserFS.BFSRequire('buffer');
+
+        const getAllFiles = function(dirPath, arrayOfFiles) {
+          files = fs.readdirSync(dirPath)
+
+          arrayOfFiles = arrayOfFiles || []
+
+          files.forEach(function(file) {
+            if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+              arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+            } else {
+              arrayOfFiles.push(dirPath + "/" + file)
+            }
+          })
+
+          return arrayOfFiles
+        }
+
+        BrowserFS.initialize(mfs);
+        // Temporary storage.
+        mfs.mount('/tmp', new BrowserFS.FileSystem.InMemory());
+        // 10MB of writable storage
+        // Use BrowserFS's IndexedDB file system for more storage.
+        mfs.mount('/home', new BrowserFS.FileSystem.LocalStorage());
+        // The first argument is the filename of the listings file
+        // The second argument is the relative URL to the folder containing the listings file
+
+        var javacCompiledContentsBase64 = 'yv66vgAAADQALQoACQAUCQAVABYIABcKABgAGQoAGgAbCwAcAB0IAB4HAB8HACABAAY8aW5pdD4BAAMoKVYBAARDb2RlAQAPTGluZU51bWJlclRhYmxlAQAEbWFpbgEAFihbTGphdmEvbGFuZy9TdHJpbmc7KVYBAA1TdGFja01hcFRhYmxlBwAhAQAKU291cmNlRmlsZQEACkphdmFjLmphdmEMAAoACwcAIgwAIwAkAQAcU3ludGF4OiBqYXZhIEphdmFjIFtjbGFzc2VzXQcAJQwAJgAnBwAoDAApACoHACEMACsALAEAEENvbXBpbGVyIGZhaWxlZC4BAA1leGFtcGxlL0phdmFjAQAQamF2YS9sYW5nL09iamVjdAEAGGphdmF4L3Rvb2xzL0phdmFDb21waWxlcgEAEGphdmEvbGFuZy9TeXN0ZW0BAANvdXQBABVMamF2YS9pby9QcmludFN0cmVhbTsBABNqYXZhL2lvL1ByaW50U3RyZWFtAQAHcHJpbnRsbgEAFShMamF2YS9sYW5nL1N0cmluZzspVgEAGGphdmF4L3Rvb2xzL1Rvb2xQcm92aWRlcgEAFWdldFN5c3RlbUphdmFDb21waWxlcgEAHCgpTGphdmF4L3Rvb2xzL0phdmFDb21waWxlcjsBAANydW4BAFcoTGphdmEvaW8vSW5wdXRTdHJlYW07TGphdmEvaW8vT3V0cHV0U3RyZWFtO0xqYXZhL2lvL091dHB1dFN0cmVhbTtbTGphdmEvbGFuZy9TdHJpbmc7KUkAIQAIAAkAAAAAAAIAAQAKAAsAAQAMAAAAHQABAAEAAAAFKrcAAbEAAAABAA0AAAAGAAEAAAAFAAkADgAPAAEADAAAAG8ABQADAAAAKyq+BKIADLIAAhIDtgAEsbgABUwrAQEBKrkABgUAPRyZAAuyAAISB7YABLEAAAACAA0AAAAiAAgAAAAHAAYACAAOAAkADwALABMADAAeAA0AIgAOACoAEAAQAAAACgACD/0AGgcAEQEAAQASAAAAAgAT';
+        var appCompiledContentsBase64 = 'yv66vgAAADQAQAoAEgAdCQAeAB8IACAKACEAIgcAIwkAHgAkCgAFACUIACYKAAUAJwoABQAoBwApCgALAB0IACoKAAsAKwgALAoACwAtBwAuBwAvAQAGPGluaXQ+AQADKClWAQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEABG1haW4BABYoW0xqYXZhL2xhbmcvU3RyaW5nOylWAQANU3RhY2tNYXBUYWJsZQcAIwEAClNvdXJjZUZpbGUBAAhBcHAuamF2YQwAEwAUBwAwDAAxADIBABVEb3BwaW9KVk0gbm93IGJvb3RlZCEHADMMADQANQEAEWphdmEvdXRpbC9TY2FubmVyDAA2ADcMABMAOAEAEldoYXQgaXMgeW91ciBuYW1lPwwAOQA6DAA7ADwBABdqYXZhL2xhbmcvU3RyaW5nQnVpbGRlcgEAB0hlbGxvLCAMAD0APgEAASEMAD8APAEAC2V4YW1wbGUvQXBwAQAQamF2YS9sYW5nL09iamVjdAEAEGphdmEvbGFuZy9TeXN0ZW0BAANvdXQBABVMamF2YS9pby9QcmludFN0cmVhbTsBABNqYXZhL2lvL1ByaW50U3RyZWFtAQAHcHJpbnRsbgEAFShMamF2YS9sYW5nL1N0cmluZzspVgEAAmluAQAVTGphdmEvaW8vSW5wdXRTdHJlYW07AQAYKExqYXZhL2lvL0lucHV0U3RyZWFtOylWAQALaGFzTmV4dExpbmUBAAMoKVoBAAhuZXh0TGluZQEAFCgpTGphdmEvbGFuZy9TdHJpbmc7AQAGYXBwZW5kAQAtKExqYXZhL2xhbmcvU3RyaW5nOylMamF2YS9sYW5nL1N0cmluZ0J1aWxkZXI7AQAIdG9TdHJpbmcAIAARABIAAAAAAAIAAAATABQAAQAVAAAAHQABAAEAAAAFKrcAAbEAAAABABYAAAAGAAEAAAAGAAkAFwAYAAEAFQAAAIQAAwADAAAARrIAAhIDtgAEuwAFWbIABrcAB0yyAAISCLYABCu2AAmZACYrtgAKTbIAArsAC1m3AAwSDbYADiy2AA4SD7YADrYAELYABLEAAAACABYAAAAeAAcAAAAIAAgACQATAAoAGwALACIADQAnAA4ARQAQABkAAAAIAAH8AEUHABoAAQAbAAAAAgAc';
+        //var objectForString = new BrowserFS.FileSystem.XmlHttpRequest('listings.json', '.');
+        mfs.mount('/sys', new BrowserFS.FileSystem.InMemory());
+        
+        var createAllDirs = function(pathToFile) {
+          var currentDirectory = "";
+          var directoryParts = pathToFile.split("/");
+
+          for (let i = 0;i < directoryParts.length - 1;i++) {
+            currentDirectory += directoryParts[i] + '/';
+            // console.log("About to create: " + currentDirectory);
+            if (!fs.existsSync(currentDirectory)) {
+              fs.mkdirSync(currentDirectory);
+            }
+            // console.log("created: " + currentDirectory);
+          }
+        }
+
+        var createFiles = function(dirData) {
+          var filesToWrite = Object.keys(dirData)
+          for (let i = 0;i < filesToWrite.length;i++) {
+            createAllDirs("/sys/" + filesToWrite[i]);
+            fs.writeFile("/sys/" + filesToWrite[i], buffer.Buffer.from(dirData[filesToWrite[i]], 'base64'), function(e) { if (e) { console.log("failure" + e);}});
+          }
+        }
+
+        createFiles(dirData);
+        
+        fs.mkdirSync('/sys/example/')
+        fs.writeFile('/sys/example/Javac.class', buffer.Buffer.from(javacCompiledContentsBase64, 'base64'), function(e) { if (e) { console.log("failure" + e);}});
+        fs.writeFile('/sys/example/App.class', buffer.Buffer.from(appCompiledContentsBase64, 'base64'), function(e) { if (e) { console.log("failure" + e);}});
+
+
+
+        window.addEventListener('load', function() {
+          var textarea = document.getElementById('console');
+          var process = BrowserFS.BFSRequire('process');
+          process.initializeTTYs();
+          var stdoutBuffer = '';
+          process.stdout.on('data', function(data) {
+            stdoutBuffer += data.toString();
+            var newlineIdx;
+            while ((newlineIdx = stdoutBuffer.indexOf("\n")) > -1) {
+              textarea.value += stdoutBuffer.slice(0, newlineIdx + 1);
+              stdoutBuffer = stdoutBuffer.slice(newlineIdx + 1);
+            }
+          });
+          var stderrBuffer = '';
+          process.stderr.on('data', function(data) {
+            stderrBuffer += data.toString();
+            var newlineIdx;
+            while ((newlineIdx = stderrBuffer.indexOf("\n")) > -1) {
+              textarea.value += stderrBuffer.slice(0, newlineIdx + 1);
+              stderrBuffer = stderrBuffer.slice(newlineIdx + 1);
+            }
+          });
+
+          var stdin = document.getElementById('stdin');
+          document.getElementById('stdinButton').addEventListener('click', function(ev) {
+            ev.preventDefault();
+            process.stdin.write(stdin.value + "\n");
+            stdin.value = '';
+          });
+
+          document.getElementById('runButton').addEventListener('click', function(ev) {
+            textarea.value = "Starting VM\n";
+            ev.preventDefault();
+            var codeInput = document.getElementById('codeInput').value
+            fs.writeFile('/home/AppTwo.java', codeInput, function(e) { if (e) { console.log("failure" + e);}});
+            // Doppio.VM.CLI(
+            //           ['-classpath', '/sys', 'example.Javac', '/home/AppTwo.java'],
+            //           {
+            //             doppioHomePath: '/sys/doppio'
+            //           });
+            // setTimeout(function() {
+            //   Doppio.VM.CLI(
+            //               ['-classpath', '/home', 'AppTwo'],
+            //             {
+            //               doppioHomePath: '/sys/doppio'
+            //             });
+            //           }, 1000);
+            // Start the JVM.
+            new Doppio.VM.JVM({
+              // '/sys' is the path to a directory in the BrowserFS file system with:
+              // * vendor/java_home/*
+              doppioHomePath: '/sys/doppio',
+              // Add the paths to your class and JAR files in the BrowserFS file system
+              classpath: ['.', '/sys', '/home']
+            }, function(err, jvmObject) {
+              // Called once initialization completes.
+              // Run a particular class!
+              // foo.bar.Baz *must* contain a public static void main method.
+              jvmObject.runClass('example.Javac', ['/home/AppTwo.java'], function(exitCode) {
+                if (exitCode === 0) {
+                  console.log("Succesfully compiled!");
+                  Doppio.VM.CLI(
+                              ['-classpath', '/home', 'AppTwo'],
+                            {
+                              doppioHomePath: '/sys/doppio'
+                            });
+                  // Execution terminated successfully
+                  // jvmObject.runClass('AppTwo', [], function(exitCode) {
+                  //   if (exitCode === 0) {
+                  //     // Execution terminated successfully
+                  //   } else {
+                  //     console.log("Failed running code!");
+                  //   }
+                  // });
+                } else {
+                  console.log("Failed compling code!");
+                }
+              });
+              
+            });
+          });
+        });
+
+        setTimeout(function() {
+          Doppio.VM.CLI(
+            ['-classpath', '/sys', 'example.App'],
+          {
+            doppioHomePath: '/sys/doppio'
+          });
+        }, 5);
+    </script>
+  </head>
+  <body>
+    <textarea id="codeInput" cols="80" rows="30"></textarea>
+    <textarea id="console" cols="80" rows="5"></textarea>
+    <br />
+    <input id="stdin" /><button id="stdinButton">Send to App</button>
+    <br />
+    <button id="runButton">Run Code</button>
+  </body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Local Judge</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- MetisMenu CSS -->
+        <link href="../css/metisMenu.min.css" rel="stylesheet">
+
+        <!-- Timeline CSS -->
+        <link href="../css/timeline.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="../css/startmin.css" rel="stylesheet">
+
+        <!-- Morris Charts CSS -->
+        <link href="../css/morris.css" rel="stylesheet">
+
+        <!-- Custom Fonts -->
+        <link href="../css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <style type="text/css" media="screen">
+            #editor { 
+                border: 1px solid #DDD;
+                border-radius: 4px;
+                border-bottom-right-radius: 0px;
+                margin-top: 5px;
+                height: 600px;
+            }
+        </style>
+
+
+        <script type="text/javascript" src="doppio/browserfs.min.js"></script>
+        <script type="text/javascript" src="doppio/doppio.js"></script>
+        <script type="text/javascript" src="../js/dirDoppio.js"></script>
+        <script type="text/javascript" src="../js/fileRt.js"></script>
+        <script type="text/javascript" src="../js/dirEpi.js"></script>
+        <script type="text/javascript" src="../js/dirJavaBuild.js"></script>
+        <script type="text/javascript" src="../js/fileSortedArrayMerge.js"></script>
+        <script type="text/javascript">
+        // Wrap in a closure; don't pollute the global namespace.
+
+            var mfs = new BrowserFS.FileSystem.MountableFileSystem(),
+                fs = BrowserFS.BFSRequire('fs');
+                buffer = BrowserFS.BFSRequire('buffer');
+                path = BrowserFS.BFSRequire('buffer');
+
+            const getAllFiles = function(dirPath, arrayOfFiles) {
+            files = fs.readdirSync(dirPath)
+
+            arrayOfFiles = arrayOfFiles || []
+
+            files.forEach(function(file) {
+                if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+                arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+                } else {
+                arrayOfFiles.push(dirPath + "/" + file)
+                }
+            })
+
+            return arrayOfFiles
+            }
+
+            BrowserFS.initialize(mfs);
+            // Temporary storage.
+            mfs.mount('/tmp', new BrowserFS.FileSystem.InMemory());
+            // 10MB of writable storage
+            // Use BrowserFS's IndexedDB file system for more storage.
+            mfs.mount('/home', new BrowserFS.FileSystem.LocalStorage());
+            // The first argument is the filename of the listings file
+            // The second argument is the relative URL to the folder containing the listings file
+
+            var javacCompiledContentsBase64 = 'yv66vgAAADQALQoACQAUCQAVABYIABcKABgAGQoAGgAbCwAcAB0IAB4HAB8HACABAAY8aW5pdD4BAAMoKVYBAARDb2RlAQAPTGluZU51bWJlclRhYmxlAQAEbWFpbgEAFihbTGphdmEvbGFuZy9TdHJpbmc7KVYBAA1TdGFja01hcFRhYmxlBwAhAQAKU291cmNlRmlsZQEACkphdmFjLmphdmEMAAoACwcAIgwAIwAkAQAcU3ludGF4OiBqYXZhIEphdmFjIFtjbGFzc2VzXQcAJQwAJgAnBwAoDAApACoHACEMACsALAEAEENvbXBpbGVyIGZhaWxlZC4BAA1leGFtcGxlL0phdmFjAQAQamF2YS9sYW5nL09iamVjdAEAGGphdmF4L3Rvb2xzL0phdmFDb21waWxlcgEAEGphdmEvbGFuZy9TeXN0ZW0BAANvdXQBABVMamF2YS9pby9QcmludFN0cmVhbTsBABNqYXZhL2lvL1ByaW50U3RyZWFtAQAHcHJpbnRsbgEAFShMamF2YS9sYW5nL1N0cmluZzspVgEAGGphdmF4L3Rvb2xzL1Rvb2xQcm92aWRlcgEAFWdldFN5c3RlbUphdmFDb21waWxlcgEAHCgpTGphdmF4L3Rvb2xzL0phdmFDb21waWxlcjsBAANydW4BAFcoTGphdmEvaW8vSW5wdXRTdHJlYW07TGphdmEvaW8vT3V0cHV0U3RyZWFtO0xqYXZhL2lvL091dHB1dFN0cmVhbTtbTGphdmEvbGFuZy9TdHJpbmc7KUkAIQAIAAkAAAAAAAIAAQAKAAsAAQAMAAAAHQABAAEAAAAFKrcAAbEAAAABAA0AAAAGAAEAAAAFAAkADgAPAAEADAAAAG8ABQADAAAAKyq+BKIADLIAAhIDtgAEsbgABUwrAQEBKrkABgUAPRyZAAuyAAISB7YABLEAAAACAA0AAAAiAAgAAAAHAAYACAAOAAkADwALABMADAAeAA0AIgAOACoAEAAQAAAACgACD/0AGgcAEQEAAQASAAAAAgAT';
+            var appCompiledContentsBase64 = 'yv66vgAAADQAQAoAEgAdCQAeAB8IACAKACEAIgcAIwkAHgAkCgAFACUIACYKAAUAJwoABQAoBwApCgALAB0IACoKAAsAKwgALAoACwAtBwAuBwAvAQAGPGluaXQ+AQADKClWAQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEABG1haW4BABYoW0xqYXZhL2xhbmcvU3RyaW5nOylWAQANU3RhY2tNYXBUYWJsZQcAIwEAClNvdXJjZUZpbGUBAAhBcHAuamF2YQwAEwAUBwAwDAAxADIBABVEb3BwaW9KVk0gbm93IGJvb3RlZCEHADMMADQANQEAEWphdmEvdXRpbC9TY2FubmVyDAA2ADcMABMAOAEAEldoYXQgaXMgeW91ciBuYW1lPwwAOQA6DAA7ADwBABdqYXZhL2xhbmcvU3RyaW5nQnVpbGRlcgEAB0hlbGxvLCAMAD0APgEAASEMAD8APAEAC2V4YW1wbGUvQXBwAQAQamF2YS9sYW5nL09iamVjdAEAEGphdmEvbGFuZy9TeXN0ZW0BAANvdXQBABVMamF2YS9pby9QcmludFN0cmVhbTsBABNqYXZhL2lvL1ByaW50U3RyZWFtAQAHcHJpbnRsbgEAFShMamF2YS9sYW5nL1N0cmluZzspVgEAAmluAQAVTGphdmEvaW8vSW5wdXRTdHJlYW07AQAYKExqYXZhL2lvL0lucHV0U3RyZWFtOylWAQALaGFzTmV4dExpbmUBAAMoKVoBAAhuZXh0TGluZQEAFCgpTGphdmEvbGFuZy9TdHJpbmc7AQAGYXBwZW5kAQAtKExqYXZhL2xhbmcvU3RyaW5nOylMamF2YS9sYW5nL1N0cmluZ0J1aWxkZXI7AQAIdG9TdHJpbmcAIAARABIAAAAAAAIAAAATABQAAQAVAAAAHQABAAEAAAAFKrcAAbEAAAABABYAAAAGAAEAAAAGAAkAFwAYAAEAFQAAAIQAAwADAAAARrIAAhIDtgAEuwAFWbIABrcAB0yyAAISCLYABCu2AAmZACYrtgAKTbIAArsAC1m3AAwSDbYADiy2AA4SD7YADrYAELYABLEAAAACABYAAAAeAAcAAAAIAAgACQATAAoAGwALACIADQAnAA4ARQAQABkAAAAIAAH8AEUHABoAAQAbAAAAAgAc';
+            //var objectForString = new BrowserFS.FileSystem.XmlHttpRequest('listings.json', '.');
+            mfs.mount('/sys', new BrowserFS.FileSystem.InMemory());
+            
+            var createAllDirs = function(pathToFile) {
+                var currentDirectory = "";
+                var directoryParts = pathToFile.split("/");
+
+                for (let i = 0;i < directoryParts.length - 1;i++) {
+                    currentDirectory += directoryParts[i] + '/';
+                    // console.log("About to create: " + currentDirectory);
+                    if (!fs.existsSync(currentDirectory)) {
+                    fs.mkdirSync(currentDirectory);
+                    }
+                    // console.log("created: " + currentDirectory);
+                }
+            }
+            fs.writeFileSync('/config.json', '{ "timeoutSeconds": 0, "numFailedTestsBeforeStop": 1 }');
+
+            var createFiles = function(baseDir, dirData) {
+                var filesToWrite = Object.keys(dirData)
+                for (let i = 0;i < filesToWrite.length;i++) {
+                    createAllDirs(baseDir + filesToWrite[i]);
+                    fs.writeFile(baseDir + filesToWrite[i], buffer.Buffer.from(dirData[filesToWrite[i]], 'base64'), function(e) { if (e) { console.log("failure" + e);}});
+                }
+            }
+
+            createFiles("/sys/", dirDoppio);
+            createFiles("/sys/", fileRt);
+
+            createFiles("/EPIJudge/", dirJavaBuild);
+            createFiles("/EPIJudge/", dirEpi);
+            createFiles("/", fileSortedArrayMerge);
+            
+            fs.mkdirSync('/sys/example/')
+            fs.writeFile('/sys/example/Javac.class', buffer.Buffer.from(javacCompiledContentsBase64, 'base64'), function(e) { if (e) { console.log("failure" + e);}});
+            fs.writeFile('/sys/example/App.class', buffer.Buffer.from(appCompiledContentsBase64, 'base64'), function(e) { if (e) { console.log("failure" + e);}});
+
+
+
+            window.addEventListener('load', function() {
+            var textarea = document.getElementById('console');
+            var process = BrowserFS.BFSRequire('process');
+            process.initializeTTYs();
+            var stdoutBuffer = '';
+            process.stdout.on('data', function(data) {
+                stdoutBuffer += data.toString();
+                var newlineIdx;
+                while ((newlineIdx = stdoutBuffer.indexOf("\n")) > -1) {
+                textarea.value += stdoutBuffer.slice(0, newlineIdx + 1);
+                stdoutBuffer = stdoutBuffer.slice(newlineIdx + 1);
+                }
+            });
+            var stderrBuffer = '';
+            process.stderr.on('data', function(data) {
+                stderrBuffer += data.toString();
+                var newlineIdx;
+                while ((newlineIdx = stderrBuffer.indexOf("\n")) > -1) {
+                textarea.value += stderrBuffer.slice(0, newlineIdx + 1);
+                stderrBuffer = stderrBuffer.slice(newlineIdx + 1);
+                }
+            });
+
+            // var stdin = document.getElementById('stdin');
+            // document.getElementById('stdinButton').addEventListener('click', function(ev) {
+            //     ev.preventDefault();
+            //     process.stdin.write(stdin.value + "\n");
+            //     stdin.value = '';
+            // });
+
+            document.getElementById('runButton').addEventListener('click', function(ev) {
+                textarea.value = "Starting VM\n";
+                ev.preventDefault();
+                var codeInput = editor.getValue();
+                fs.writeFileSync('/EPIJudge/epi_judge_java/epi/SortedArraysMerge.java', codeInput);
+                // Doppio.VM.CLI(
+                //           ['-classpath', '/sys', 'example.Javac', '/home/AppTwo.java'],
+                //           {
+                //             doppioHomePath: '/sys/doppio'
+                //           });
+                // setTimeout(function() {
+                //   Doppio.VM.CLI(
+                //               ['-classpath', '/home', 'AppTwo'],
+                //             {
+                //               doppioHomePath: '/sys/doppio'
+                //             });
+                //           }, 1000);
+                // Start the JVM.
+                // javac -parameters -d "java_build" -cp "java_build:." "./epi/test_framework/GenericTestHandler.java"
+                // javac -parameters -d "java_build" -cp "java_build:." "./epi/Anagrams.java"
+                // java -cp "java_build" epi.Anagrams --test-data-dir ../test_data
+                new Doppio.VM.JVM({
+                // '/sys' is the path to a directory in the BrowserFS file system with:
+                // * vendor/java_home/*
+                doppioHomePath: '/sys/doppio',
+                // Add the paths to your class and JAR files in the BrowserFS file system
+                classpath: ['.', '/sys', '/home']
+                }, function(err, jvmObject) {
+                // Called once initialization completes.
+                // Run a particular class!
+                // foo.bar.Baz *must* contain a public static void main method.
+                jvmObject.runClass('example.Javac', ['-parameters', '-d', '/EPIJudge/epi_judge_java/java_build', '-cp', '/EPIJudge/epi_judge_java/java_build:.', '/EPIJudge/epi_judge_java/epi/SortedArraysMerge.java'], function(exitCode) {
+                    if (exitCode === 0) {
+                    console.log("Succesfully compiled!");
+                    Doppio.VM.CLI(
+                        ['-classpath', '/EPIJudge/epi_judge_java/java_build', 'epi.SortedArraysMerge', '--no-color', '--no-update-js', '--test-data-dir', '/test_data'],
+                        {
+                        doppioHomePath: '/sys/doppio'
+                        });
+                    // Execution terminated successfully
+                    // jvmObject.runClass('AppTwo', [], function(exitCode) {
+                    //   if (exitCode === 0) {
+                    //     // Execution terminated successfully
+                    //   } else {
+                    //     console.log("Failed running code!");
+                    //   }
+                    // });
+                    } else {
+                    console.log("Failed compling code!");
+                    }
+                });
+                
+                });
+            });
+            });
+        </script>
+    </head>
+    <body>
+
+        <div id="wrapper">
+
+            <!-- Navigation -->
+            <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="index.html">Local Judge</a>
+                </div>
+
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <!-- /.navbar-top-links -->
+
+                <div class="navbar-default sidebar" role="navigation">
+                    <div class="sidebar-nav navbar-collapse">
+                        <ul class="nav" id="side-menu">
+                            
+                            
+                            <li>
+                                <a href="#"><i class="fa fa-files-o fa-fw"></i> Chapter 1<span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level">
+                                    <li>
+                                        <a href="blank.html">Blank Page</a>
+                                    </li>
+                                    <li>
+                                        <a href="login.html">Login Page</a>
+                                    </li>
+                                </ul>
+                                <!-- /.nav-second-level -->
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div id="page-wrapper">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h1 class="page-header">Dashboard</h1>
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <div id="editor">class AppTwo {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!"); 
+    }
+}
+                    </div>
+                    <br>
+                    <textarea id="console" cols="80" rows="5"></textarea>
+                    <br>
+                    <button type="button" id="runButton" class="btn btn-success">Run</button> 
+                    <script src="../ace-src/ace.js" type="text/javascript" charset="utf-8"></script>
+                    <script>
+                        var editor = ace.edit("editor");
+                        editor.setTheme("ace/theme/monokai");
+                        editor.session.setMode("ace/mode/java");
+                        editor.session.setValue(fs.readFileSync('/EPIJudge/epi_judge_java/epi/SortedArraysMerge.java', 'utf8'));
+                    </script>
+                    <!-- /.row -->
+                    
+                    <!-- /.row -->
+                    
+                    <!-- /.row -->
+                </div>
+                <!-- /.container-fluid -->
+            </div>
+            <!-- /#page-wrapper -->
+
+        </div>
+        <!-- /#wrapper -->
+
+        <!-- jQuery -->
+        <script src="../js/jquery.min.js"></script>
+
+        <!-- Bootstrap Core JavaScript -->
+        <script src="../js/bootstrap.min.js"></script>
+
+        <!-- Metis Menu Plugin JavaScript -->
+        <script src="../js/metisMenu.min.js"></script>
+
+
+        <!-- Custom Theme JavaScript -->
+        <script src="../js/startmin.js"></script>
+
+
+
+
+
+    </body>
+</html>
